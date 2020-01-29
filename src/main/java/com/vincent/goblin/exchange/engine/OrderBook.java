@@ -24,8 +24,16 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public final class OrderBook {
 
-    public static final ConcurrentSkipListSet<Order> ASK_ORDERS = new ConcurrentSkipListSet<>(Comparator.reverseOrder());
-    public static final ConcurrentSkipListSet<Order> BID_ORDERS = new ConcurrentSkipListSet<>(Comparator.reverseOrder());
+    public static final ConcurrentSkipListSet<Order> ASK_ORDERS = new ConcurrentSkipListSet<>(
+            Comparator.comparingLong(Order::getPrice).reversed()
+                    .thenComparing(Order::getCreatedAt)
+                    .thenComparing(Order::getSn)
+    );
+    public static final ConcurrentSkipListSet<Order> BID_ORDERS = new ConcurrentSkipListSet<>(
+            Comparator.comparingLong(Order::getPrice)
+                    .thenComparingLong(Order::getCreatedAt).reversed()
+                    .thenComparing(Order::getSn)
+    );
 
     public static final ConcurrentHashMap<Long, Long> ASK_DEPTH = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Long, Long> BID_DEPTH = new ConcurrentHashMap<>();

@@ -23,7 +23,7 @@ import java.util.List;
 
 public interface OrderBucket {
 
-    List<Trade> create(Order activeOrder);
+    List<Trade> create(Order order);
 
     void remove(String sn);
 

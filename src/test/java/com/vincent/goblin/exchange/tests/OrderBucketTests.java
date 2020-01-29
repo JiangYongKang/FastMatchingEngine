@@ -23,14 +23,13 @@ import com.vincent.goblin.exchange.engine.OrderBucket;
 import com.vincent.goblin.exchange.model.Order;
 import com.vincent.goblin.exchange.model.OrderAction;
 import com.vincent.goblin.exchange.model.OrderCategory;
-import com.vincent.goblin.exchange.model.Trade;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
+@Slf4j
 public class OrderBucketTests {
 
     private OrderBucket askOrderBucket;
@@ -47,46 +46,42 @@ public class OrderBucketTests {
         askOrderBucket = new LimitAskOrderBucket();
         bidOrderBucket = new LimitBidOrderBucket();
 
-        bidOrderBucket.create(new Order(6, 9019L, 4L, OrderAction.BID, OrderCategory.LIMIT));
-        bidOrderBucket.create(new Order(7, 9018L, 3L, OrderAction.BID, OrderCategory.LIMIT));
-        bidOrderBucket.create(new Order(8, 9017L, 1L, OrderAction.BID, OrderCategory.LIMIT));
-        bidOrderBucket.create(new Order(9, 9016L, 2L, OrderAction.BID, OrderCategory.LIMIT));
-        bidOrderBucket.create(new Order(10, 9015L, 4L, OrderAction.BID, OrderCategory.LIMIT));
+        bidOrderBucket.create(new Order(4, 9019L, 4L, OrderAction.BID, OrderCategory.LIMIT));
+        bidOrderBucket.create(new Order(5, 9018L, 3L, OrderAction.BID, OrderCategory.LIMIT));
+        bidOrderBucket.create(new Order(6, 9017L, 1L, OrderAction.BID, OrderCategory.LIMIT));
 
         askOrderBucket.create(new Order(1, 9013L, 2L, OrderAction.ASK, OrderCategory.LIMIT));
         askOrderBucket.create(new Order(2, 9012L, 3L, OrderAction.ASK, OrderCategory.LIMIT));
         askOrderBucket.create(new Order(3, 9011L, 2L, OrderAction.ASK, OrderCategory.LIMIT));
-        askOrderBucket.create(new Order(4, 9010L, 1L, OrderAction.ASK, OrderCategory.LIMIT));
-        askOrderBucket.create(new Order(5, 9010L, 4L, OrderAction.ASK, OrderCategory.LIMIT));
-        askOrderBucket.create(new Order(5, 9009L, 4L, OrderAction.ASK, OrderCategory.LIMIT));
     }
 
     @Test
     public void shouldMatchOrders() {
-        for (int i = 0; i < 10000; i++) {
-            Order askOrder = new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 12000), RandomUtils.nextLong(1, 10), OrderAction.ASK, OrderCategory.LIMIT);
-            List<Trade> tradesOne = askOrderBucket.create(askOrder);
-        }
-        for (int i = 0; i < 10000; i++) {
-            Order bidOrder = new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 12000), RandomUtils.nextLong(1, 10), OrderAction.BID, OrderCategory.LIMIT);
-            List<Trade> tradesTwo = bidOrderBucket.create(bidOrder);
-        }
-        for (int i = 0; i < 100000; i++) {
-            Order askOrder = new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 12000), RandomUtils.nextLong(1, 10), OrderAction.ASK, OrderCategory.LIMIT);
-            Order bidOrder = new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 12000), RandomUtils.nextLong(1, 10), OrderAction.BID, OrderCategory.LIMIT);
-            List<Trade> tradesOne = askOrderBucket.create(askOrder);
-            List<Trade> tradesTwo = bidOrderBucket.create(bidOrder);
-        }
+        Order bidOrder = new Order(10, 9012L, 6L, OrderAction.BID, OrderCategory.LIMIT);
+        bidOrderBucket.create(bidOrder);
+        Assert.assertEquals(OrderBook.BID_DEPTH.get(bidOrder.getPrice()).longValue(), 1L);
+        Assert.assertEquals(OrderBook.ASK_ORDERS.size(), 1);
+        Assert.assertEquals(OrderBook.ASK_ORDERS.first().getPrice().longValue(), 9011L);
+        Assert.assertEquals(OrderBook.ASK_ORDERS.first().getAmount().longValue(), 2L);
+        Assert.assertEquals(OrderBook.BID_ORDERS.size(), 4);
+        Assert.assertEquals(OrderBook.BID_ORDERS.last().getPrice().longValue(), 9012L);
+        Assert.assertEquals(OrderBook.BID_ORDERS.last().getAmount().longValue(), 1L);
+        Assert.assertEquals(OrderBook.ASK_DEPTH.get(9013L).longValue(), 0L);
+        Assert.assertEquals(OrderBook.ASK_DEPTH.get(9012L).longValue(), 0L);
     }
 
     @Test
-    public void shouldAccumulateDepth() {
-        Assert.assertEquals(OrderBook.BID_DEPTH.size(), 5);
-        Assert.assertEquals(OrderBook.ASK_DEPTH.size(), 5);
-        Assert.assertEquals(5L, OrderBook.ASK_DEPTH.get(9010L).longValue());
-        Assert.assertEquals(2L, OrderBook.ASK_DEPTH.get(9013L).longValue());
-        Assert.assertEquals(4L, OrderBook.BID_DEPTH.get(9015L).longValue());
-        Assert.assertEquals(4L, OrderBook.BID_DEPTH.get(9019L).longValue());
+    public void shouldIgnoreDuplicateOrderSn() {
+        Order bidOrder = new Order(6, 9017L, 1L, OrderAction.BID, OrderCategory.LIMIT);
+        bidOrderBucket.create(bidOrder);
+        Assert.assertEquals(OrderBook.BID_ORDERS.size(), 4);
+        bidOrderBucket.create(bidOrder);
+        Assert.assertEquals(OrderBook.BID_ORDERS.size(), 4);
+        Order askOrder = new Order(1, 9013L, 2L, OrderAction.ASK, OrderCategory.LIMIT);
+        askOrderBucket.create(askOrder);
+        Assert.assertEquals(OrderBook.ASK_ORDERS.size(), 4);
+        askOrderBucket.create(askOrder);
+        Assert.assertEquals(OrderBook.ASK_ORDERS.size(), 4);
     }
 
     @Test
@@ -97,8 +92,32 @@ public class OrderBucketTests {
         Order askOrder = new Order(10, 9013L, 1L, OrderAction.ASK, OrderCategory.LIMIT);
         askOrderBucket.create(askOrder);
         askOrderBucket.remove(askOrder.getSn());
-        Assert.assertEquals(OrderBook.ASK_ORDERS.size(), 5);
-        Assert.assertEquals(OrderBook.BID_ORDERS.size(), 5);
+        Assert.assertEquals(OrderBook.ASK_ORDERS.size(), 3);
+        Assert.assertEquals(OrderBook.BID_ORDERS.size(), 3);
+    }
+
+    @Test
+    public void shouldAccumulateDepth() {
+        Assert.assertEquals(OrderBook.BID_DEPTH.size(), 3);
+        Assert.assertEquals(OrderBook.ASK_DEPTH.size(), 3);
+        Assert.assertEquals(4L, OrderBook.BID_DEPTH.get(9019L).longValue());
+        Assert.assertEquals(3L, OrderBook.BID_DEPTH.get(9018L).longValue());
+        Assert.assertEquals(1L, OrderBook.BID_DEPTH.get(9017L).longValue());
+        Assert.assertEquals(2L, OrderBook.ASK_DEPTH.get(9013L).longValue());
+        Assert.assertEquals(3L, OrderBook.ASK_DEPTH.get(9012L).longValue());
+        Assert.assertEquals(2L, OrderBook.ASK_DEPTH.get(9011L).longValue());
+        bidOrderBucket.create(new Order(6, 9017L, 1L, OrderAction.BID, OrderCategory.LIMIT));
+        Assert.assertEquals(2L, OrderBook.BID_DEPTH.get(9017L).longValue());
+    }
+
+    @Test
+    public void OrderMatchPressureTest() {
+        for (int i = 0; i < 100000; i++) {
+            askOrderBucket.create(new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 10000), RandomUtils.nextLong(1, 10), OrderAction.ASK, OrderCategory.LIMIT));
+            bidOrderBucket.create(new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 10000), RandomUtils.nextLong(1, 10), OrderAction.BID, OrderCategory.LIMIT));
+        }
+        log.info("ASK ORDERS SIZE: {}", OrderBook.ASK_ORDERS.size());
+        log.info("BID ORDERS SIZE: {}", OrderBook.BID_ORDERS.size());
     }
 
 }

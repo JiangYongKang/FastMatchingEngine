@@ -20,46 +20,54 @@ import com.vincent.goblin.exchange.model.Order;
 import com.vincent.goblin.exchange.model.OrderState;
 import com.vincent.goblin.exchange.model.Trade;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class LimitAskOrderBucket extends LimitOrderBucket {
 
     @Override
     protected Trade doExchange(Order source, Order target) {
 
-        Long exchangeAmount = Math.max(source.getAmount(), target.getAmount());
+        Long exchangeAmount = Math.min(source.getAmount(), target.getAmount());
         source.setAmount(source.getAmount() - exchangeAmount);
         target.setAmount(target.getAmount() - exchangeAmount);
 
+        OrderBook.BID_DEPTH.computeIfPresent(target.getPrice(), (k, v) -> v - exchangeAmount);
+        OrderBook.ASK_DEPTH.computeIfPresent(source.getPrice(), (k, v) -> v - exchangeAmount);
+
         if (source.getAmount() == 0) {
             source.setState(OrderState.DONE);
-            OrderBook.ASK_DEPTH.computeIfPresent(source.getPrice(), (k, v) -> v - exchangeAmount);
+            OrderBook.ASK_ORDERS.remove(source);
         }
 
         if (target.getAmount() == 0) {
             target.setState(OrderState.DONE);
-            OrderBook.BID_DEPTH.computeIfPresent(target.getPrice(), (k, v) -> v - exchangeAmount);
+            OrderBook.BID_ORDERS.remove(target);
         }
 
         return new Trade(source.getSn(), target.getSn(), target.getPrice(), exchangeAmount);
     }
 
     @Override
-    public List<Trade> create(Order activeOrder) {
-        OrderBook.ASK_DEPTH.merge(activeOrder.getPrice(), activeOrder.getAmount(), Long::sum);
-        List<Trade> trades = OrderBook.BID_ORDERS.stream()
-                .map(targetOrder -> {
-                    if (activeOrder.getPrice() >= targetOrder.getPrice()) {
-                        return doExchange(activeOrder, targetOrder);
-                    }
-                    return null;
-                }).filter(Objects::nonNull).collect(Collectors.toList());
-        OrderBook.BID_ORDERS.removeIf(order -> order.getState().equals(OrderState.DONE));
-        if (activeOrder.getState().equals(OrderState.WAIT)) {
-            OrderBook.ASK_ORDERS.add(activeOrder);
+    public List<Trade> create(Order order) {
+
+        if (OrderBook.ASK_ORDERS.contains(order)) {
+            return Collections.emptyList();
         }
+        OrderBook.ASK_DEPTH.merge(order.getPrice(), order.getAmount(), Long::sum);
+
+        List<Trade> trades = new ArrayList<>();
+        for (Order targetOrder : OrderBook.BID_ORDERS) {
+            if (order.getState().equals(OrderState.DONE) || order.getPrice() < targetOrder.getPrice()) {
+                break;
+            }
+            trades.add(doExchange(order, targetOrder));
+        }
+        if (order.getState().equals(OrderState.WAIT)) {
+            OrderBook.ASK_ORDERS.add(order);
+        }
+
         return trades;
     }
 

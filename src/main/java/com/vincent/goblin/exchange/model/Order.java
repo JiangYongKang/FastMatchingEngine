@@ -20,7 +20,7 @@ import lombok.Data;
 import org.apache.commons.lang3.RandomStringUtils;
 
 @Data
-public class Order implements Comparable<Order> {
+public class Order {
 
     /**
      * 订单
@@ -71,7 +71,7 @@ public class Order implements Comparable<Order> {
     }
 
     public Order(Integer uid, Long price, Long amount, OrderAction action, OrderCategory category) {
-        this.sn = RandomStringUtils.randomAlphabetic(18);
+        this.sn = RandomStringUtils.randomAlphabetic(32);
         this.uid = uid;
         this.price = price;
         this.amount = amount;
@@ -80,11 +80,5 @@ public class Order implements Comparable<Order> {
         this.category = category;
         this.state = OrderState.WAIT;
         this.createdAt = System.currentTimeMillis();
-    }
-
-    @Override
-    public int compareTo(Order o) {
-        int result = this.getPrice().compareTo(o.getPrice());
-        return result != 0 ? result : this.getCreatedAt().compareTo(o.getCreatedAt());
     }
 }
