@@ -1,10 +1,8 @@
 # GoblinExchange
 
-![https://img.shields.io/badge/jdk-1.8-yellowgreen?style=flat-square&logo=java](https://img.shields.io/badge/jdk-1.8-yellowgreen?style=flat-square&logo=java)
-![https://img.shields.io/badge/maven-3.5.0-success?style=flat-square&logo=apache-maven](https://img.shields.io/badge/maven-3.5.0-success?style=flat-square&logo=apache-maven)
-![https://img.shields.io/badge/JDK-1.8-yellowgreen?style=flat-square&logo=java](https://img.shields.io/badge/JDK-1.8-yellowgreen?style=flat-square&logo=java)
-![https://img.shields.io/badge/JDK-1.8-yellowgreen?style=flat-square&logo=java](https://img.shields.io/badge/JDK-1.8-yellowgreen?style=flat-square&logo=java)
-![https://img.shields.io/badge/JDK-1.8-yellowgreen?style=flat-square&logo=java](https://img.shields.io/badge/JDK-1.8-yellowgreen?style=flat-square&logo=java)
+![https://img.shields.io/badge/jdk-1.8-yellowgreen?style=flat-square](https://img.shields.io/badge/jdk-1.8-yellowgreen?style=flat-square)
+![https://img.shields.io/badge/maven-3.5.0-success?style=flat-square](https://img.shields.io/badge/maven-3.5.0-success?style=flat-square)
+![https://img.shields.io/badge/exchange-success-success?style=flat-square&logo=bitcoin](https://img.shields.io/badge/exchange-success-success?style=flat-square&logo=bitcoin)
 
 一个基于跳表实现的在内存中撮合的快速撮合引擎，能够在基础的硬件设备上实现每秒中处理10W订单。
 
