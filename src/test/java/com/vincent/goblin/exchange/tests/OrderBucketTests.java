@@ -133,12 +133,10 @@ public class OrderBucketTests {
             askOrderBucket.create(new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 10000), RandomUtils.nextLong(1, 10), OrderAction.ASK, OrderCategory.LIMIT));
             bidOrderBucket.create(new Order(RandomUtils.nextInt(1, 1000000), RandomUtils.nextLong(8000, 10000), RandomUtils.nextLong(1, 10), OrderAction.BID, OrderCategory.LIMIT));
         }
-        log.info("ASK ORDERS SIZE: {}", OrderBook.ASK_ORDERS.size());
-        log.info("BID ORDERS SIZE: {}", OrderBook.BID_ORDERS.size());
     }
 
     @Test
-    public void OrderMatchPressureTest2() throws InterruptedException {
+    public void ThreadPoolOrderMatchPressureTest() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         for (int i = 0; i < 100000; i++) {
             executorService.execute(() -> {
@@ -147,8 +145,6 @@ public class OrderBucketTests {
             });
         }
         executorService.awaitTermination(2, TimeUnit.SECONDS);
-        log.info("ASK ORDERS SIZE: {}", OrderBook.ASK_ORDERS.size());
-        log.info("BID ORDERS SIZE: {}", OrderBook.BID_ORDERS.size());
     }
 
 }
