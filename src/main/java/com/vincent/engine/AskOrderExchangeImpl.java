@@ -17,14 +17,13 @@ public class AskOrderExchangeImpl implements OrderExchange {
     public Trade doExchange(Order source, Order target) {
 
         BigDecimal minVolume = source.getVolume().min(target.getVolume());
-        source.setVolume(source.getVolume().subtract(minVolume));
-        target.setVolume(target.getVolume().subtract(minVolume));
+        source.subtractVolume(minVolume);
+        target.subtractVolume(minVolume);
 
-        if (source.getVolume().equals(BigDecimal.ZERO)) {
+        if (source.isDone()) {
             OrderBook.ASK_ORDER_BUCKET.remove(source);
         }
-
-        if (target.getVolume().equals(BigDecimal.ZERO)) {
+        if (target.isDone()) {
             OrderBook.BID_ORDER_BUCKET.remove(target);
         }
 
@@ -40,12 +39,12 @@ public class AskOrderExchangeImpl implements OrderExchange {
 
         List<Trade> trades = new ArrayList<>();
         for (Order targetOrder : OrderBook.BID_ORDER_BUCKET) {
-            if (order.getVolume().equals(BigDecimal.ZERO) || order.getUnitPrice().compareTo(targetOrder.getUnitPrice()) < 0) {
+            if (order.isDone() || order.getUnitPrice().compareTo(targetOrder.getUnitPrice()) < 0) {
                 break;
             }
             trades.add(doExchange(order, targetOrder));
         }
-        if (order.getVolume().compareTo(BigDecimal.ZERO) > 0) {
+        if (order.isWait()) {
             OrderBook.ASK_ORDER_BUCKET.add(order);
         }
 

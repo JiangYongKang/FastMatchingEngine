@@ -10,6 +10,7 @@ public class CommonResponse {
     private Object data;
 
     public CommonResponse() {
+        this(200, "success");
     }
 
     public CommonResponse(Integer code, String message) {

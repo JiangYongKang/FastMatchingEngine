@@ -24,4 +24,19 @@ public class Order {
     private Timestamp updatedAt;
     private Timestamp createdAt;
 
+    public boolean isDone() {
+        return this.state.equals(OrderState.DONE);
+    }
+
+    public boolean isWait() {
+        return this.state.equals(OrderState.WAIT);
+    }
+
+    public void subtractVolume(BigDecimal volume) {
+        this.volume = this.volume.subtract(volume);
+        if (this.volume.compareTo(BigDecimal.ZERO) == 0) {
+            this.state = OrderState.DONE;
+        }
+    }
+
 }
