@@ -4,6 +4,7 @@ import com.vincent.enums.Coin;
 import com.vincent.enums.OrderAction;
 import com.vincent.enums.OrderCategory;
 import com.vincent.enums.OrderState;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+@Data
 @Entity
 @Table(name = "orders")
 public class MemberOrder {
