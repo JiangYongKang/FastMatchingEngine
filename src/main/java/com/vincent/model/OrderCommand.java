@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 public class OrderCommand {
 
     private Long id;
+    private Long uid;
     private Symbol symbol;
     private BigDecimal orderPrice;
     private BigDecimal amount;
@@ -26,8 +27,9 @@ public class OrderCommand {
     private int code;
     private String message;
 
-    public static OrderCommand createOrder(Symbol symbol, BigDecimal orderPrice, BigDecimal amount, OrderAction action, OrderCategory category) {
+    public static OrderCommand createOrder(Long uid, Symbol symbol, BigDecimal orderPrice, BigDecimal amount, OrderAction action, OrderCategory category) {
         return OrderCommand.builder()
+                .uid(uid)
                 .symbol(symbol)
                 .orderPrice(orderPrice)
                 .amount(amount)
@@ -36,9 +38,10 @@ public class OrderCommand {
                 .build();
     }
 
-    public static OrderCommand cancelOrder(Long id) {
+    public static OrderCommand cancelOrder(Long id, Long uid) {
         return OrderCommand.builder()
                 .id(id)
+                .uid(uid)
                 .build();
     }
 

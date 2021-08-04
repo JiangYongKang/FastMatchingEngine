@@ -1,4 +1,4 @@
-package com.vincent.db.repository;
+package com.vincent.web.repository;
 
 import com.vincent.model.MemberOrder;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -22,8 +22,8 @@ public class MemberOrder {
     @Column(name = "sn", length = 64, nullable = false, unique = true)
     private String sn;
 
-    @Column(name = "uid", length = 64, nullable = false, unique = true)
-    private String uid;
+    @Column(name = "uid", nullable = false)
+    private Long uid;
 
     @Column(name = "action", columnDefinition = "VARCHAR(16) NOT NULL")
     private OrderAction action;

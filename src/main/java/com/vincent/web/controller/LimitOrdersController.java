@@ -1,6 +1,6 @@
 package com.vincent.web.controller;
 
-import com.vincent.db.service.MemberOrderService;
+import com.vincent.web.service.MemberOrderServiceImpl;
 import com.vincent.model.CommonResponse;
 import com.vincent.model.OrderCommand;
 import com.vincent.web.validator.OrderValidation;
@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 public class LimitOrdersController {
 
     @Resource
-    private MemberOrderService memberOrderService;
+    private MemberOrderServiceImpl memberOrderServiceImpl;
 
     @GetMapping
     public ResponseEntity<?> index(
@@ -26,13 +26,13 @@ public class LimitOrdersController {
 
     @PostMapping("/limit")
     public ResponseEntity<?> createLimitOrder(@RequestBody @OrderValidation(message = "invalid command") OrderCommand command) {
-        command = memberOrderService.createOrder(command);
+        command = memberOrderServiceImpl.createLimitOrder(command);
         return ResponseEntity.ok(command);
     }
 
     @PostMapping("/market")
     public ResponseEntity<?> createMarketOrder(@RequestBody @OrderValidation(message = "invalid command") OrderCommand command) {
-        command = memberOrderService.createOrder(command);
+        command = memberOrderServiceImpl.createMarketOrder(command);
         return ResponseEntity.ok(command);
     }
 
