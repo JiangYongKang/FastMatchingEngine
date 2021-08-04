@@ -1,12 +1,10 @@
 package com.vincent.model;
 
-import com.vincent.enums.Coin;
 import com.vincent.enums.OrderAction;
 import com.vincent.enums.OrderCategory;
 import com.vincent.enums.OrderState;
+import com.vincent.enums.Symbol;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -30,16 +28,16 @@ public class MemberOrder {
     @Column(name = "action", columnDefinition = "VARCHAR(16) NOT NULL")
     private OrderAction action;
 
-    @Column(name = "coin", columnDefinition = "VARCHAR(16) NOT NULL")
-    private Coin coin;
+    @Column(name = "symbol", columnDefinition = "VARCHAR(16) NOT NULL")
+    private Symbol symbol;
 
-    @Column(name = "unit_price", precision = 8, scale = 4, nullable = false)
-    private BigDecimal unitPrice;
+    @Column(name = "order_price", precision = 10, scale = 4, nullable = false)
+    private BigDecimal orderPrice;
 
-    @Column(name = "volume", precision = 8, scale = 4, nullable = false)
+    @Column(name = "volume", precision = 10, scale = 4, nullable = false)
     private BigDecimal volume;
 
-    @Column(name = "origin_volume", precision = 8, scale = 4, nullable = false)
+    @Column(name = "origin_volume", precision = 10, scale = 4, nullable = false)
     private BigDecimal originVolume;
 
     @Column(name = "state", columnDefinition = "VARCHAR(16) NOT NULL")
@@ -48,11 +46,9 @@ public class MemberOrder {
     @Column(name = "category", columnDefinition = "VARCHAR(16) NOT NULL")
     private OrderCategory category;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
