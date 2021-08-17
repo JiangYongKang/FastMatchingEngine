@@ -1,21 +1,18 @@
 package com.vincent.web.service;
 
-import com.vincent.config.StreamConsumerRunner;
+import com.vincent.engine.StreamMessageListenerContainerImpl;
 import com.vincent.enums.OrderCategory;
 import com.vincent.enums.OrderState;
 import com.vincent.model.MemberOrder;
 import com.vincent.model.OrderCommand;
 import com.vincent.utils.SnowFlake;
 import com.vincent.web.repository.MemberOrderRepository;
-import org.springframework.data.redis.connection.stream.MapRecord;
-import org.springframework.data.redis.connection.stream.RecordId;
-import org.springframework.data.redis.connection.stream.StreamRecords;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.connection.stream.Record;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.Collections;
 
 @Service
 public class MemberOrderServiceImpl implements MemberOrderService {
@@ -24,7 +21,7 @@ public class MemberOrderServiceImpl implements MemberOrderService {
     private MemberOrderRepository memberOrderRepository;
 
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public OrderCommand createLimitOrder(OrderCommand command) {
@@ -44,16 +41,14 @@ public class MemberOrderServiceImpl implements MemberOrderService {
         memberOrderRepository.save(memberOrder);
 
         String key = String.format("CREATE_ORDERS:%s:%s:%s", command.getSymbol(), command.getCategory(), command.getAction());
-        redisTemplate.opsForZSet().add(key, memberOrder.getId(), memberOrder.getCreatedAt().getTime());
+        stringRedisTemplate.opsForZSet().add(key, memberOrder.getId().toString(), memberOrder.getCreatedAt().getTime());
 
-        command.setId(memberOrder.getId());
-        command.setCode(200);
-        command.setMessage("success");
+        stringRedisTemplate.opsForStream().add(
+                Record.of(command)
+                        .withStreamKey(StreamMessageListenerContainerImpl.MATCHING_ENGINE_ORDERS_CHANNEL)
+        );
 
-
-        MapRecord<String, String, OrderCommand> record = StreamRecords.newRecord().in(StreamConsumerRunner.MATCHING_ENGINE_ORDERS_CHANNEL)
-                .ofMap(Collections.singletonMap(memberOrder.getSn(), command));
-        RecordId recordId = redisTemplate.opsForStream().add(record);
+        command.success();
 
         return command;
     }

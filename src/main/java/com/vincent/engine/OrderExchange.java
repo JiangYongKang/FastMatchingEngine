@@ -1,18 +1,18 @@
 package com.vincent.engine;
 
-import com.vincent.model.Order;
+import com.vincent.model.OrderCommand;
 import com.vincent.model.Trade;
 
 import java.util.List;
 
 public interface OrderExchange {
 
-    Trade doExchange(Order source, Order target);
+    Trade doExchange(OrderCommand source, OrderCommand target);
 
-    List<Trade> create(Order order);
-
-    void cancel(Order order);
+    void cancel(OrderCommand command);
 
     void cancel(String id);
+
+    List<Trade> doMatching(OrderCommand command);
 
 }

@@ -4,12 +4,14 @@ import com.vincent.enums.Coin;
 import com.vincent.enums.OrderAction;
 import com.vincent.enums.OrderCategory;
 import com.vincent.enums.OrderState;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
+@Builder
 public class Order {
 
     private String id;
@@ -23,6 +25,13 @@ public class Order {
 
     private Timestamp updatedAt;
     private Timestamp createdAt;
+
+    public static Order buildOf(OrderCommand command) {
+        return Order.builder()
+                .id(command.getId().toString())
+                .action(command.getAction())
+                .build();
+    }
 
     public boolean isDone() {
         return this.state.equals(OrderState.DONE);

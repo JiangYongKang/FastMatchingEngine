@@ -45,4 +45,9 @@ public class OrderCommand {
                 .build();
     }
 
+    public void success() {
+        this.setCode(10000);
+        this.setMessage("SUCCESS");
+    }
+
 }
