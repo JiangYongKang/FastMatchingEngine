@@ -37,6 +37,10 @@ public class OrderBook {
 
     public List<Trade> newOrder(Long id, Long uid, BigDecimal commissionPrice, BigDecimal commissionVolume, OrderAction action, Long timestamp) {
 
+        if (this.idMaps.containsKey(id)) {
+            return Collections.emptyList();
+        }
+
         Order order = new Order(
                 id,
                 uid,

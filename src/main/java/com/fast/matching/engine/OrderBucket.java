@@ -36,15 +36,17 @@ public class OrderBucket {
 
         while (iterator.hasNext()) {
             Order target = iterator.next();
-            BigDecimal minVolume = this.matchTo(source, target);
-            this.volume = this.volume.subtract(minVolume);
-            Trade trade = new Trade(source.id(), target.id(), target.commissionPrice(), minVolume, source.action());
-            trades.add(trade);
-            if (target.commissionVolume().compareTo(BigDecimal.ZERO) == 0) {
-                iterator.remove();
-            }
-            if (source.commissionVolume().compareTo(BigDecimal.ZERO) == 0) {
-                break;
+            if (!source.uid().equals(target.uid())) {
+                BigDecimal minVolume = this.matchTo(source, target);
+                this.volume = this.volume.subtract(minVolume);
+                Trade trade = new Trade(source.id(), target.id(), target.commissionPrice(), minVolume, source.action());
+                trades.add(trade);
+                if (target.commissionVolume().compareTo(BigDecimal.ZERO) == 0) {
+                    iterator.remove();
+                }
+                if (source.commissionVolume().compareTo(BigDecimal.ZERO) == 0) {
+                    break;
+                }
             }
         }
 

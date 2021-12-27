@@ -66,9 +66,27 @@ public class OrderBookTests {
     @Test
     public void shouldBeMatchingOrder() {
         orderBook.newOrder(1L, 1L, BigDecimal.valueOf(100), BigDecimal.valueOf(0.1), ASK, System.currentTimeMillis());
-        orderBook.newOrder(2L, 1L, BigDecimal.valueOf(100), BigDecimal.valueOf(0.1), BID, System.currentTimeMillis());
+        orderBook.newOrder(2L, 2L, BigDecimal.valueOf(100), BigDecimal.valueOf(0.1), BID, System.currentTimeMillis());
         assertEquals(orderBook.trades().size(), 1);
         assertEquals(orderBook.askOrderBucket().size(), 0);
+        assertEquals(orderBook.bidOrderBucket().size(), 0);
+    }
+
+    @Test
+    public void shouldBeSkipDuplicateOrder() {
+        orderBook.newOrder(1L, 1L, BigDecimal.valueOf(100), BigDecimal.valueOf(0.1), ASK, System.currentTimeMillis());
+        orderBook.newOrder(1L, 1L, BigDecimal.valueOf(100), BigDecimal.valueOf(0.1), ASK, System.currentTimeMillis());
+        assertEquals(orderBook.trades().size(), 0);
+        assertEquals(orderBook.askOrderBucket().size(), 1);
+        assertEquals(orderBook.bidOrderBucket().size(), 0);
+    }
+
+    @Test
+    public void shouldBeSkipSelfOrder() {
+        orderBook.newOrder(1L, 1L, BigDecimal.valueOf(100), BigDecimal.valueOf(0.1), ASK, System.currentTimeMillis());
+        orderBook.newOrder(2L, 1L, BigDecimal.valueOf(100), BigDecimal.valueOf(0.1), ASK, System.currentTimeMillis());
+        assertEquals(orderBook.trades().size(), 0);
+        assertEquals(orderBook.askOrderBucket().size(), 1);
         assertEquals(orderBook.bidOrderBucket().size(), 0);
     }
 
