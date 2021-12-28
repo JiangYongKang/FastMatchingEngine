@@ -21,7 +21,14 @@ import java.util.*;
 
 public class OrderBucket {
 
+    /**
+     * 当前桶内委托量总和
+     */
     private BigDecimal volume;
+
+    /**
+     * 委托订单
+     */
     private final Map<Long, Order> entries;
 
     public OrderBucket() {

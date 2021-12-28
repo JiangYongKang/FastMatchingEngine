@@ -20,11 +20,34 @@ import java.math.BigDecimal;
 
 public class Order {
 
+    /**
+     * 订单ID
+     */
     private Long id;
+
+    /**
+     * 用户ID
+     */
     private Long uid;
+
+    /**
+     * 委托价格
+     */
     private BigDecimal commissionPrice;
+
+    /**
+     * 委托数量
+     */
     private BigDecimal commissionVolume;
+
+    /**
+     * 订单方向
+     */
     private OrderAction action;
+
+    /**
+     * 创建时间
+     */
     private Long timestamp;
 
     public Order() {

@@ -23,9 +23,24 @@ import static com.fast.matching.engine.OrderAction.ASK;
 
 public class OrderBook {
 
+    /**
+     * 成交记录
+     */
     private final List<Trade> trades;
+
+    /**
+     * 卖单集合
+     */
     private final NavigableMap<BigDecimal, OrderBucket> askOrderBucket;
+
+    /**
+     * 买单集合
+     */
     private final NavigableMap<BigDecimal, OrderBucket> bidOrderBucket;
+
+    /**
+     * ID => 订单映射
+     */
     private final Map<Long, Order> idMaps;
 
     public OrderBook() {

@@ -20,11 +20,34 @@ import java.math.BigDecimal;
 
 public class Trade {
 
+    /**
+     * 原始订单ID
+     */
     private Long sourceOrderId;
+
+    /**
+     * 对手订单ID
+     */
     private Long targetOrderId;
+
+    /**
+     * 成交价格
+     */
     private BigDecimal commissionPrice;
+
+    /**
+     * 成交量
+     */
     private BigDecimal commissionVolume;
+
+    /**
+     * 交易方向
+     */
     private OrderAction action;
+
+    /**
+     * 成交时间
+     */
     private Long timestamp;
 
     public Trade() {

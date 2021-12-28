@@ -17,5 +17,13 @@
 package com.fast.matching.engine;
 
 public enum OrderAction {
-    ASK, BID
+    /**
+     * 卖单
+     */
+    ASK,
+
+    /**
+     * 买单
+     */
+    BID
 }
